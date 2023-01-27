@@ -19,22 +19,29 @@ import { sleep } from "../utils/util";
 export class BitGetExchange {
   client: FuturesClient;
 
-  constructor(apiKey: string, apiSecret: string) {
+  constructor(
+    apiKey: string,
+    apiSecret: string,
+    apiPass: string,
+    baseUrl?: string
+  ) {
     this.client = new FuturesClient({
       apiKey,
       apiSecret,
+      apiPass,
+      baseUrl,
     });
   }
 
-  getMarkPrice = async (symbol: string) => {
-    const markPrice = await this.client.getMarkPrice(symbol);
-    return markPrice;
-  };
+  // getMarkPrice = async (symbol: string) => {
+  //   const markPrice = await this.client.getMarkPrice(symbol);
+  //   return markPrice;
+  // };
 
-  getMarket = async (symbol: string) => {
-    const market = await this.client.getTicker(symbol);
-    return market;
-  };
+  // getMarket = async (symbol: string) => {
+  //   const market = await this.client.getTicker(symbol);
+  //   return market;
+  // };
 
   placeOrder = async (_params: {
     symbol: string;
@@ -49,25 +56,30 @@ export class BitGetExchange {
     presetStopLossPrice?: string;
   }): Promise<Order | null> => {
     const { data, code, msg } = await this.client.submitOrder(_params);
-    if (code === "0" && data) {
-      return {
-        id: data.orderId,
-        market: data.symbol,
-        side: data.side,
-        type: data.type,
-        price: data.price,
-        quantity: data.size,
-        status: data.status,
-        filled: data.filledSize,
-        remaining: data.remainingSize,
-        createdAt: new Date(data.createdAt),
-        clientId: data.clientOid,
-      };
+    try {
+      if (code === "0" && data) {
+        return {
+          id: data.orderId,
+          market: data.symbol,
+          side: data.side,
+          type: data.type,
+          price: data.price,
+          quantity: data.size,
+          status: data.status,
+          filled: data.filledSize,
+          remaining: data.remainingSize,
+          createdAt: new Date(data.createdAt),
+          clientId: data.clientOid,
+        };
+      }
+      if (msg?.includes("insufficient balance")) {
+        await sleep(1500);
+      }
+      throw new Error(msg);
+    } catch (error) {
+      console.log(error);
     }
-    if (msg?.includes("insufficient balance")) {
-      await sleep(1500);
-    }
-    throw new Error(msg);
+    return null;
   };
 
   cancelOrder = async (_params: {

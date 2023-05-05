@@ -1,5 +1,6 @@
 import {
   FuturesClient,
+
   FuturesOrderSide,
   FuturesOrderType,
   FuturesProductType,
@@ -33,15 +34,15 @@ export class BitGetExchange {
     });
   }
 
-  // getMarkPrice = async (symbol: string) => {
-  //   const markPrice = await this.client.getMarkPrice(symbol);
-  //   return markPrice;
-  // };
+  getMarkPrice = async (symbol: string) => {
+    const markPrice = await this.client.getMarkPrice(symbol);
+    return markPrice;
+  };
 
-  // getMarket = async (symbol: string) => {
-  //   const market = await this.client.getTicker(symbol);
-  //   return market;
-  // };
+  getMarket = async (symbol: string) => {
+    const market = await this.client.getTicker(symbol);
+    return market;
+  };
 
   placeOrder = async (_params: {
     symbol: string;
@@ -111,4 +112,34 @@ export class BitGetExchange {
     }
     throw new Error(msg);
   };
+
+
+
+  //Get Trader Open Orders
+
+  getOpenOrders = async (_params: {
+    symbol: string;
+    productType: FuturesProductType;
+    pageSize: number;
+    pageNo: number;
+  }): Promise<Order> => {
+    const { data, code, msg } = await this.client.getCopyTraderOpenOrder(
+      _params.symbol,
+      _params.productType,
+      _params.pageSize,
+      _params.pageNo)
+    if (code === "00000") {
+      return data;
+    }
+    throw new Error(msg);
+
+  }
+
+  //Get Traders List
+ 
+
+  //Get Trader Info
+
+
+
 }

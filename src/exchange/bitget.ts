@@ -129,7 +129,9 @@ export class BitGetExchange {
       _params.pageSize,
       _params.pageNo)
     if (code === "00000") {
-      return data;
+      console.log(data);
+      
+     // return data;
     }
     throw new Error(msg);
 
